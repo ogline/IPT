@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Post Consignment Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .header h1 i {
+            font-size: 32px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .tracking-form {
+            margin-bottom: 30px;
+            background: #f9fafc;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e1e8f0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #718096;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: white;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #2a5298;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+        
+        .track-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .track-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3);
+        }
+        
+        .track-btn:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+            border: 1px solid #e1e8f0;
+        }
+        
+        .result.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e1e8f0;
+        }
+        
+        .result-header h3 {
+            color: #2d3748;
+            font-size: 20px;
+        }
+        
+        .status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status.in-transit {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.delivered {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status.pending {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .timeline {
+            position: relative;
+            margin-top: 20px;
+        }
+        
+        .timeline:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 15px;
+            width: 3px;
+            background: linear-gradient(to bottom, #2a5298, #1e3c72);
+            border-radius: 3px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 25px;
+        }
+        
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #2a5298;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #2a5298;
+        }
+        
+        .timeline-item.current:before {
+            background-color: #28a745;
+            box-shadow: 0 0 0 2px #28a745;
+        }
+        
+        .timeline-date {
+            font-size: 14px;
+            color: #4a5568;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .timeline-desc {
+            font-size: 16px;
+            color: #2d3748;
+            font-weight: 500;
+        }
+        
+        .disclaimer {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        
+        .disclaimer h4 {
+            margin-bottom: 10px;
+            color: #856404;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .disclaimer a {
+            color: #2a5298;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .disclaimer a:hover {
+            text-decoration: underline;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .loader.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #2a5298;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .error.active {
+            display: block;
+        }
+        
+        .sample-numbers {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        
+        .sample-numbers p {
+            margin-bottom: 8px;
+        }
+        
+        .sample-numbers ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .sample-numbers li {
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 5px;
+            padding: 5px 10px;
+            background: #edf2f7;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .sample-numbers li:hover {
+            background: #e2e8f0;
+        }
+        
+        .official-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: #1e3c72;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .official-link:hover {
+            background: #2a5298;
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shipping-fast"></i> Indian Post Consignment Tracker</h1>
+            <p>Track your India Post shipments easily</p>
+        </div>
+        
+        <div class="content">
+            <div class="tracking-form">
+                <div class="form-group">
+                    <label for="tracking-number"><i class="fas fa-barcode"></i> Enter Consignment Number</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="tracking-number" placeholder="e.g., EE123456789IN" autocomplete="off">
+                    </div>
+                </div>
+                
+                <button class="track-btn" id="track-btn">
+                    <i class="fas fa-truck"></i> Track Consignment
+                </button>
+                
+                <div class="sample-numbers">
+                    <p>Try these sample tracking numbers:</p>
+                    <ul>
+                        <li onclick="document.getElementById('tracking-number').value = 'EE123456789IN'">EE123456789IN</li>
+                        <li onclick="document.getElementById('tracking-number').value = 'RR987654321IN'">RR987654321IN</li>
+                        <li onclick="document.getElementById('tracking-number').value = 'CP543216789IN'">CP543216789IN</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="loader" id="loader">
+                <div class="spinner"></div>
+                <p>Tracking your consignment...</p>
+            </div>
+            
+            <div class="error" id="error">
+                <p><i class="fas fa-exclamation-circle"></i> Unable to track the consignment. Please check the tracking number and try again.</p>
+            </div>
+            
+            <div class="result" id="result">
+                <div class="result-header">
+                    <h3 id="consignment-number">Consignment #</h3>
+                    <span class="status in-transit" id="status">In Transit</span>
+                </div>
+                
+                <div class="timeline" id="timeline">
+                    <!-- Timeline items will be inserted here -->
+                </div>
+            </div>
+            
+            <div class="disclaimer">
+                <h4><i class="fas fa-exclamation-triangle"></i> Important Note</h4>
+                <p>This tracker is a demonstration interface. For official tracking with CAPTCHA verification, please visit the India Post official website using the link below:</p>
+                <a href="https://www.indiapost.gov.in/track-result/article-number/U2FsdGVkX189eun60QV0uoug1oH7rAhgln%2FgEggvfVdapoPNB1cwRvhjkUjK9fpO" target="_blank" class="official-link">
+                    <i class="fas fa-external-link-alt"></i> Go to Official India Post Tracking
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const trackBtn = document.getElementById('track-btn');
+            const trackingNumberInput = document.getElementById('tracking-number');
+            const resultDiv = document.getElementById('result');
+            const loaderDiv = document.getElementById('loader');
+            const errorDiv = document.getElementById('error');
+            const timelineDiv = document.getElementById('timeline');
+            const statusSpan = document.getElementById('status');
+            const consignmentNumberSpan = document.getElementById('consignment-number');
+            
+            // Sample tracking data (in a real implementation, this would come from an API)
+            const sampleData = {
+                'EE123456789IN': {
+                    status: 'in-transit',
+                    number: 'EE123456789IN',
+                    timeline: [
+                        { date: '2023-11-25 14:30', description: 'Item processed at delivery office' },
+                        { date: '2023-11-24 09:15', description: 'Out for delivery' },
+                        { date: '2023-11-23 16:45', description: 'Arrived at destination facility' },
+                        { date: '2023-11-22 12:20', description: 'In transit to destination' },
+                        { date: '2023-11-20 10:05', description: 'Item received at originating office' }
+                    ]
+                },
+                'RR987654321IN': {
+                    status: 'delivered',
+                    number: 'RR987654321IN',
+                    timeline: [
+                        { date: '2023-11-18 11:20', description: 'Item delivered to recipient' },
+                        { date: '2023-11-17 14:10', description: 'Out for delivery' },
+                        { date: '2023-11-16 09:30', description: 'Arrived at delivery office' },
+                        { date: '2023-11-14 17:45', description: 'In transit to destination' },
+                        { date: '2023-11-12 13:15', description: 'Item received at originating office' }
+                    ]
+                },
+                'CP543216789IN': {
+                    status: 'pending',
+                    number: 'CP543216789IN',
+                    timeline: [
+                        { date: '2023-11-19 08:30', description: 'Item processed at sorting facility' },
+                        { date: '2023-11-18 15:20', description: 'In transit to next facility' },
+                        { date: '2023-11-17 11:05', description: 'Item received at originating office' }
+                    ]
+                }
+            };
+            
+            trackBtn.addEventListener('click', function() {
+                const trackingNumber = trackingNumberInput.value.trim().toUpperCase();
+                
+                if (!trackingNumber) {
+                    alert('Please enter a tracking number');
+                    return;
+                }
+                
+                // Show loader, hide results and errors
+                loaderDiv.classList.add('active');
+                resultDiv.classList.remove('active');
+                errorDiv.classList.remove('active');
+                
+                // Simulate API call delay
+                setTimeout(function() {
+                    // Check if we have sample data for this tracking number
+                    if (sampleData[trackingNumber]) {
+                        displayTrackingResult(sampleData[trackingNumber]);
+                    } else {
+                        // Show error for unknown tracking numbers
+                        loaderDiv.classList.remove('active');
+                        errorDiv.classList.add('active');
+                    }
+                }, 1500);
+            });
+            
+            function displayTrackingResult(data) {
+                // Update consignment number and status
+                consignmentNumberSpan.textContent = `Consignment #${data.number}`;
+                
+                // Update status
+                let statusText = 'In Transit';
+                if (data.status === 'delivered') statusText = 'Delivered';
+                if (data.status === 'pending') statusText = 'Processing';
+                
+                statusSpan.textContent = statusText;
+                statusSpan.className = `status ${data.status}`;
+                
+                // Clear previous timeline
+                timelineDiv.innerHTML = '';
+                
+                // Add timeline items
+                data.timeline.forEach((item, index) => {
+                    const timelineItem = document.createElement('div');
+                    timelineItem.className = `timeline-item ${index === 0 ? 'current' : ''}`;
+                    
+                    const dateElement = document.createElement('div');
+                    dateElement.className = 'timeline-date';
+                    dateElement.textContent = formatDate(item.date);
+                    
+                    const descElement = document.createElement('div');
+                    descElement.className = 'timeline-desc';
+                    descElement.textContent = item.description;
+                    
+                    timelineItem.appendChild(dateElement);
+                    timelineItem.appendChild(descElement);
+                    
+                    timelineDiv.appendChild(timelineItem);
+                });
+                
+                // Hide loader and show results
+                loaderDiv.classList.remove('active');
+                resultDiv.classList.add('active');
+            }
+            
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-IN', { 
+                    day: '2-digit', 
+                    month: 'short', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            // Allow pressing Enter to track
+            trackingNumberInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    trackBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
